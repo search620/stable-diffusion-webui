@@ -780,7 +780,7 @@ def img2img(prompt: str, image_editor_mode: str, cropped_image, image_with_mask,
         init_mask = image_with_mask["mask"]
         init_mask = init_mask.convert("RGB")
         init_mask = resize_image(resize_mode, init_mask, width, height)
-        keep_mask = mask_mode == 0
+        keep_mask = mask_mode == "Keep masked area"
         init_mask = init_mask if keep_mask else ImageOps.invert(init_mask)
     else:
         init_img = cropped_image
