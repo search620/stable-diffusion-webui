@@ -55,7 +55,7 @@ def draw_gradio_ui(opt, img2img=lambda x: x, txt2img=lambda x: x, txt2img_defaul
                                         output_txt2img_to_upscale_esrgan = gr.Button("Upscale w/ ESRGAN")
 
                             with gr.TabItem("Output Info", id="text2img_output_info_tab"):
-                                output_txt2img_params = gr.Textbox(label="Generation parameters", interactive=False)
+                                output_txt2img_params = gr.Textbox(label="Generation parameters", interactive=False, placeholder="After generation, you can copy these for sharing or saving")
                                 with gr.Row():
                                     output_txt2img_copy_params = gr.Button("Copy full parameters").click(
                                         inputs=output_txt2img_params, outputs=[],
@@ -124,23 +124,27 @@ def draw_gradio_ui(opt, img2img=lambda x: x, txt2img=lambda x: x, txt2img_defaul
                     img2img_btn_editor = gr.Button("Generate", variant="primary", elem_id="img2img_edit_btn")
                 with gr.Row().style(equal_height=False):
                     with gr.Column():
-                        gr.Markdown('#### Img2Img input')
+                        gr.Markdown('#### Input Image')
                         img2img_image_editor = gr.Image(value=sample_img2img, source="upload", interactive=True,
                                                         type="pil", tool="select", elem_id="img2img_editor")
                         img2img_image_mask = gr.Image(value=sample_img2img, source="upload", interactive=True,
                                                       type="pil", tool="sketch", visible=False,
                                                       elem_id="img2img_mask")
 
-                        with gr.Row():
-                            img2img_image_editor_mode = gr.Radio(choices=["Mask", "Crop"], label="Image Editor Mode",
-                                                             value="Crop", elem_id='edit_mode_select')
-
-                            img2img_painterro_btn = gr.Button("Advanced Editor")
-                            img2img_copy_from_painterro_btn = gr.Button(value="Get Image from Advanced Editor")
-                            img2img_show_help_btn = gr.Button("Show Hints")
-                            img2img_hide_help_btn = gr.Button("Hide Hints", visible=False)
-                        img2img_help = gr.Markdown(visible=False, value="")
-
+                        with gr.Tabs():
+                            with gr.TabItem("Editor Options"):
+                                with gr.Row():
+                                    img2img_image_editor_mode = gr.Radio(choices=["Mask", "Crop"], label="Image Editor Mode",
+                                                                value="Crop", elem_id='edit_mode_select')
+                                    img2img_resize = gr.Radio(label="Resize mode",
+                                                    choices=["Just resize", "Crop and resize", "Resize and fill"],
+                                                    type="index",
+                                                    value=img2img_resize_modes[img2img_defaults['resize_mode']])
+                                with gr.Row():
+                                    img2img_painterro_btn = gr.Button("Advanced Editor")
+                                    img2img_copy_from_painterro_btn = gr.Button(value="Get Image from Advanced Editor")
+                            with gr.TabItem("Hints"):
+                                img2img_help = gr.Markdown(visible=False, value=uifn.help_text)
 
 
                     with gr.Column():
@@ -148,14 +152,14 @@ def draw_gradio_ui(opt, img2img=lambda x: x, txt2img=lambda x: x, txt2img_defaul
                         output_img2img_gallery = gr.Gallery(label="Images", elem_id="img2img_gallery_output").style(grid=[4,4,4])
                         with gr.Tabs():
                             with gr.TabItem("Generated image actions", id="img2img_actions_tab"):
-                                with gr.Group():
-                                    gr.Markdown("Select an image, then press one of the buttons below")
+                                gr.Markdown("Select an image, then press one of the buttons below")
+                                with gr.Row():
                                     output_img2img_copy_to_clipboard_btn = gr.Button("Copy to clipboard")
                                     output_img2img_copy_to_input_btn = gr.Button("Push to img2img input")
                                     output_img2img_copy_to_mask_btn = gr.Button("Push to img2img input mask")
-                                    gr.Markdown("Warning: This will clear your current image and mask settings!")
+                                gr.Markdown("Warning: This will clear your current image and mask settings!")
                             with gr.TabItem("Output info", id="img2img_output_info_tab"):
-                                output_img2img_params = gr.Textbox(label="Generation parameters")
+                                output_img2img_params = gr.Textbox(label="Generation parameters", interactive=False, placeholder="After generation, you can copy these for sharing or saving")
                                 with gr.Row():
                                     output_img2img_copy_params = gr.Button("Copy full parameters").click(
                                         inputs=output_img2img_params, outputs=[],
@@ -169,9 +173,6 @@ def draw_gradio_ui(opt, img2img=lambda x: x, txt2img=lambda x: x, txt2img_defaul
                 with gr.Row():
 
                     with gr.Column():
-                        img2img_batch_size = gr.Slider(minimum=1, maximum=8, step=1,
-                                                       label='Batch size (how many images are in a batch; memory-hungry)',
-                                                       value=img2img_defaults['batch_size'])
                         img2img_width = gr.Slider(minimum=64, maximum=2048, step=64, label="Width",
                                                   value=img2img_defaults["width"])
                         img2img_height = gr.Slider(minimum=64, maximum=2048, step=64, label="Height",
@@ -183,6 +184,9 @@ def draw_gradio_ui(opt, img2img=lambda x: x, txt2img=lambda x: x, txt2img_defaul
                         img2img_batch_count = gr.Slider(minimum=1, maximum=250, step=1,
                                                         label='Batch count (how many batches of images to generate)',
                                                         value=img2img_defaults['n_iter'])
+                        img2img_batch_size = gr.Slider(minimum=1, maximum=8, step=1,
+                                                       label='Batch size (how many images are in a batch; memory-hungry)',
+                                                       value=img2img_defaults['batch_size'])
                     with gr.Column():
                         img2img_mask = gr.Radio(choices=["Keep masked area", "Regenerate only masked area"],
                                                 label="Mask Mode", type="index",
@@ -210,10 +214,6 @@ def draw_gradio_ui(opt, img2img=lambda x: x, txt2img=lambda x: x, txt2img_defaul
                         img2img_denoising = gr.Slider(minimum=0.0, maximum=1.0, step=0.01, label='Denoising Strength',
                                                       value=img2img_defaults['denoising_strength'])
 
-                        img2img_resize = gr.Radio(label="Resize mode",
-                                                  choices=["Just resize", "Crop and resize", "Resize and fill"],
-                                                  type="index",
-                                                  value=img2img_resize_modes[img2img_defaults['resize_mode']])
                         img2img_embeddings = gr.File(label="Embeddings file for textual inversion",
                                                      visible=show_embeddings)
 
@@ -230,17 +230,17 @@ def draw_gradio_ui(opt, img2img=lambda x: x, txt2img=lambda x: x, txt2img_defaul
                     img2img_image_mask
                 )
 
-                img2img_show_help_btn.click(
-                    uifn.show_help,
-                    None,
-                    [img2img_show_help_btn, img2img_hide_help_btn, img2img_help]
-                )
+                #img2img_show_help_btn.click(
+                #    uifn.show_help,
+                #    None,
+                #    [img2img_show_help_btn, img2img_hide_help_btn, img2img_help]
+                #)
 
-                img2img_hide_help_btn.click(
-                    uifn.hide_help,
-                    None,
-                    [img2img_show_help_btn, img2img_hide_help_btn, img2img_help]
-                )
+                #img2img_hide_help_btn.click(
+                #    uifn.hide_help,
+                #    None,
+                #    [img2img_show_help_btn, img2img_hide_help_btn, img2img_help]
+                #)
 
                 output_txt2img_copy_to_input_btn.click(
                     uifn.copy_img_to_input,

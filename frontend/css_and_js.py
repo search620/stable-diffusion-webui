@@ -13,7 +13,9 @@ def css(opt):
     #prompt_row input{
      font-size:20px
     }
-    #edit_mode_select{width:auto !important}
+    #edit_mode_select {
+       width: 50% !important;
+    }
     input[type=number]:disabled { -moz-appearance: textfield;+ }
     #generate, #img2img_mask_btn,#img2img_edit_btn{
         position: absolute;
